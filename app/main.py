@@ -3,8 +3,8 @@
 Namespace:
     /api/haylen/*    -> Haylen (sekolah renang)
     /api/n6/v1/*      -> N6 (dashboard kepelatihan)
-    /api/dbacc/*      -> DB Accounting
-    /api/dbfin/*      -> DB Finance
+    /api/dbacc/*      -> DB Accounting (Rename)
+    /api/dbfin/*      -> DB Finance (Rename)
     /api/claisrox/*   -> Claisrox (operasional produksi)
 
 Jalankan:  uvicorn app.main:app --reload   (dari folder unified-backend/)
