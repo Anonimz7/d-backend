@@ -1,0 +1,9 @@
+{
+  "tier": 0,
+  "name": "Owner",
+  "menus": [
+    "*",
+    "akun",
+    "sandi"
+  ]
+}

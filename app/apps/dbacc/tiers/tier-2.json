@@ -1,0 +1,25 @@
+{
+  "tier": 2,
+  "name": "Staff",
+  "roleLabel": "Staff",
+  "description": "Staf operasional/kasir — transaksi harian, persediaan, dan kontak.",
+  "menus": [
+    "dashboard",
+    "transaksi",
+    "penjualan",
+    "pembelian",
+    "kasbank",
+    "persediaan",
+    "kontak",
+    "sandi"
+  ],
+  "permissions": {
+    "view": true,
+    "create": true,
+    "edit": true,
+    "del": false,
+    "expo": true,
+    "manageUsers": false,
+    "manageSettings": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "tier": 3,
+  "name": "Viewer",
+  "roleLabel": "Auditor",
+  "description": "Auditor/view-only — hanya membaca ringkasan, jurnal, laporan, dan pajak.",
+  "menus": [
+    "dashboard",
+    "jurnal",
+    "laporan",
+    "pajak",
+    "sandi"
+  ],
+  "permissions": {
+    "view": true,
+    "create": false,
+    "edit": false,
+    "del": false,
+    "expo": true,
+    "manageUsers": false,
+    "manageSettings": false
+  }
+}

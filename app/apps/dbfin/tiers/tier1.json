@@ -1,0 +1,11 @@
+{
+  "tier": 1,
+  "name": "Tier 1",
+  "access": [
+    "budget",
+    "report",
+    "bills",
+    "goals",
+    "sandi"
+  ]
+}

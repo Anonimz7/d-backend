@@ -1,0 +1,12 @@
+{
+  "tier": 3,
+  "name": "Kasir & Toko Online",
+  "menus": [
+    "dashboard",
+    "produk",
+    "customer",
+    "penjualan",
+    "online",
+    "sandi"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "tier": 1,
+  "name": "Admin",
+  "roleLabel": "Admin",
+  "description": "Administrator — seluruh menu operasional, tanpa pengaturan sistem.",
+  "menus": [
+    "dashboard",
+    "transaksi",
+    "penjualan",
+    "pembelian",
+    "kasbank",
+    "jurnal",
+    "persediaan",
+    "asettetap",
+    "kontak",
+    "laporan",
+    "pajak",
+    "perusahaan",
+    "sandi"
+  ],
+  "permissions": {
+    "view": true,
+    "create": true,
+    "edit": true,
+    "del": true,
+    "expo": true,
+    "manageUsers": false,
+    "manageSettings": false
+  }
+}

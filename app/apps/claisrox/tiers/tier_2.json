@@ -1,0 +1,14 @@
+{
+  "tier": 2,
+  "name": "Staf Produksi & Gudang",
+  "menus": [
+    "dashboard",
+    "produk",
+    "bahan-baku",
+    "resep",
+    "produksi",
+    "supplier",
+    "pembelian",
+    "sandi"
+  ]
+}
