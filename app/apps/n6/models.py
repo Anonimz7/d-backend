@@ -97,11 +97,11 @@ class Account(Base, TimestampMixin):
 
     #: Tier-4 users belong to a client record; other tiers leave this null.
     client_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="SET NULL"), index=True
+        ForeignKey("dn6sport.clients.id", ondelete="SET NULL"), index=True
     )
     #: Tier-3 users manage this coach's schedule and roster.
     coach_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.coaches.id", ondelete="SET NULL"), index=True
+        ForeignKey("dn6sport.coaches.id", ondelete="SET NULL"), index=True
     )
 
     client: Mapped["Client | None"] = relationship(back_populates="accounts", foreign_keys=[client_id])
@@ -133,7 +133,7 @@ class Client(Base, TimestampMixin):
     joined_on: Mapped[date] = mapped_column(Date, nullable=False)
     archived_on: Mapped[date | None] = mapped_column(Date)
 
-    coach_id: Mapped[int | None] = mapped_column(ForeignKey("n6.coaches.id", ondelete="SET NULL"), index=True)
+    coach_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.coaches.id", ondelete="SET NULL"), index=True)
 
     coach: Mapped["Coach | None"] = relationship(back_populates="clients")
     accounts: Mapped[list["Account"]] = relationship(back_populates="client", foreign_keys="Account.client_id")
@@ -210,7 +210,7 @@ class PriceItem(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     program_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.programs.id", ondelete="CASCADE"), index=True
+        ForeignKey("dn6sport.programs.id", ondelete="CASCADE"), index=True
     )
     label: Mapped[str] = mapped_column(String(160), nullable=False)
     unit: Mapped[str] = mapped_column(String(32), nullable=False, default="per program")
@@ -230,12 +230,12 @@ class Enrollment(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     program_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.programs.id", ondelete="SET NULL"), index=True
+        ForeignKey("dn6sport.programs.id", ondelete="SET NULL"), index=True
     )
-    coach_id: Mapped[int | None] = mapped_column(ForeignKey("n6.coaches.id", ondelete="SET NULL"), index=True)
+    coach_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.coaches.id", ondelete="SET NULL"), index=True)
 
     start_on: Mapped[date] = mapped_column(Date, nullable=False)
     weeks: Mapped[int] = mapped_column(Integer, nullable=False, default=4)
@@ -269,7 +269,7 @@ class CoachScheduleSlot(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     coach_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.coaches.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.coaches.id", ondelete="CASCADE"), nullable=False, index=True
     )
     #: 1 = Monday .. 7 = Sunday, matching the dashboard's day tabs.
     weekday: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
@@ -295,7 +295,7 @@ class ClientSchedule(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     weekday: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     start_time: Mapped[str] = mapped_column(String(5), nullable=False)
@@ -320,15 +320,15 @@ class ScheduleRequest(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    coach_id: Mapped[int | None] = mapped_column(ForeignKey("n6.coaches.id", ondelete="SET NULL"), index=True)
+    coach_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.coaches.id", ondelete="SET NULL"), index=True)
     requested_on: Mapped[date] = mapped_column(Date, nullable=False)
     current_start: Mapped[str | None] = mapped_column(String(5))
     reason: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default=REQUEST_PENDING, index=True)
     decision_note: Mapped[str | None] = mapped_column(Text)
-    decided_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    decided_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     client: Mapped["Client"] = relationship()
@@ -345,7 +345,7 @@ class Expense(Base, TimestampMixin):
     amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     spent_on: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text)
-    created_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
 
     __table_args__ = {"schema": "dn6sport"}
 
@@ -357,7 +357,7 @@ class Commission(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     coach_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.coaches.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.coaches.id", ondelete="CASCADE"), nullable=False, index=True
     )
     period: Mapped[str] = mapped_column(String(7), nullable=False, index=True)  # YYYY-MM
     rate: Mapped[Decimal] = mapped_column(Numeric(5, 4), nullable=False)
@@ -380,13 +380,13 @@ class Ticket(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), index=True
     )
     subject: Mapped[str] = mapped_column(String(200), nullable=False)
     detail: Mapped[str | None] = mapped_column(Text)
     priority: Mapped[str] = mapped_column(String(16), nullable=False, default="sedang", index=True)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default=TICKET_OPEN, index=True)
-    opened_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    opened_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     client: Mapped["Client | None"] = relationship()
@@ -402,9 +402,9 @@ class TicketReply(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     ticket_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.tickets.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.tickets.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    author_id: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    author_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
     body: Mapped[str] = mapped_column(Text, nullable=False)
 
     ticket: Mapped["Ticket"] = relationship(back_populates="replies")
@@ -419,11 +419,11 @@ class Message(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     thread_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
-    sender_id: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"), index=True)
+    sender_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"), index=True)
     recipient_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.accounts.id", ondelete="SET NULL"), index=True
+        ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"), index=True
     )
-    client_id: Mapped[int | None] = mapped_column(ForeignKey("n6.clients.id", ondelete="CASCADE"), index=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), index=True)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     #: Set by POST /messages/{id}/read; drives the unread dots in the sidebar.
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -442,15 +442,15 @@ class Attendance(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     coach_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.coaches.id", ondelete="SET NULL"), index=True
+        ForeignKey("dn6sport.coaches.id", ondelete="SET NULL"), index=True
     )
     session_on: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="hadir")
     note: Mapped[str | None] = mapped_column(Text)
-    recorded_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    recorded_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
 
     client: Mapped["Client"] = relationship()
     coach: Mapped["Coach | None"] = relationship(back_populates="attendances")
@@ -469,14 +469,14 @@ class Correction(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int | None] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), index=True
     )
     field: Mapped[str] = mapped_column(String(64), nullable=False)
     before_value: Mapped[str | None] = mapped_column(Text)
     after_value: Mapped[str | None] = mapped_column(Text)
     reason: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default=CORRECTION_OPEN, index=True)
-    resolved_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    resolved_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     resolution_note: Mapped[str | None] = mapped_column(Text)
 
@@ -490,7 +490,7 @@ class AthleteNote(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     period: Mapped[str | None] = mapped_column(String(7))  # YYYY-MM
     pace_target: Mapped[str | None] = mapped_column(String(32))
@@ -519,7 +519,7 @@ class MonthlyReport(Base, TimestampMixin):
     period: Mapped[str] = mapped_column(String(7), nullable=False, index=True)  # YYYY-MM
     scope: Mapped[str] = mapped_column(String(32), nullable=False, default="all")
     audience: Mapped[str] = mapped_column(String(32), nullable=False, default="owner")
-    generated_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
+    generated_by: Mapped[int | None] = mapped_column(ForeignKey("dn6sport.accounts.id", ondelete="SET NULL"))
     #: Figures at generation time. Kept verbatim so a re-run never rewrites
     #: what was already handed to somebody.
     payload: Mapped[dict | None] = mapped_column(JSONType)
@@ -537,7 +537,7 @@ class TrainingLog(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_id: Mapped[int] = mapped_column(
-        ForeignKey("n6.clients.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("dn6sport.clients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     log_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
