@@ -1,4 +1,4 @@
-"""Model DB Finance (porting). Schema PostgreSQL: dbfin.
+"""Model DB Finance (porting). Schema PostgreSQL: dfinance.
 
 Tabel users, accounts, transactions, budgets, bills, goals, investments.
 PK komposit (user_id, id) untuk tabel data; id baris dibuat oleh frontend.
@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.database import JSONType, app_base  # noqa: F401  (JSONType: konvensi porting)
 Base = app_base("dfinance")
 
-SCHEMA = "dbfin"
+SCHEMA = "dfinance"
 
 
 class User(Base):
