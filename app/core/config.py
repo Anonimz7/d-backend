@@ -1,7 +1,7 @@
 """Konfigurasi terpusat backend gabungan Apk-Final.
 
 Satu file .env untuk kelima aplikasi. Tiap aplikasi memakai schema
-PostgreSQL sendiri (haylen, n6, dbacc, dbfin, clx) dalam satu database.
+PostgreSQL sendiri (dn6sport, daccounting, dfinance, dclaisrox) dalam satu database.
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

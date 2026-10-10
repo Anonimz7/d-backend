@@ -1,13 +1,12 @@
-"""Backend gabungan Apk-Final: 1 proses FastAPI untuk 5 aplikasi.
+"""Backend gabungan: 1 proses FastAPI untuk 4 aplikasi.
 
 Namespace:
-    /api/haylen/*    -> Haylen (sekolah renang)
-    /api/n6/v1/*      -> N6 (dashboard kepelatihan)
-    /api/dbacc/*      -> DB Accounting (Rename)
-    /api/dbfin/*      -> DB Finance (Rename)
+    /api/n6/v1/*      -> N6 Sport (dashboard kepelatihan)
+    /api/dbacc/*      -> DB Accounting
+    /api/dbfin/*      -> DB Finance
     /api/claisrox/*   -> Claisrox (operasional produksi)
 
-Jalankan:  uvicorn app.main:app --reload   (dari folder unified-backend/)
+Jalankan:  uvicorn app.main:app --reload   (dari folder 5-backend/)
 Dokumen:   http://localhost:8000/docs
 """
 from contextlib import asynccontextmanager
@@ -21,8 +20,6 @@ from app.apps.dbacc.router import router as dbacc_router
 from app.apps.dbacc.seed import ensure_owner as dbacc_owner
 from app.apps.dbfin.router import router as dbfin_router
 from app.apps.dbfin.seed import ensure_owner as dbfin_owner
-from app.apps.haylen.router import router as haylen_router
-from app.apps.haylen.seed import ensure_owner as haylen_owner
 from app.apps.n6.router import router as n6_router
 from app.apps.n6.seed import ensure_owner as n6_owner
 from app.core.config import settings
@@ -40,7 +37,6 @@ async def lifespan(app: FastAPI):
     init_db()
     db = SessionLocal()
     try:
-        haylen_owner(db)
         n6_owner(db)
         dbacc_owner(db)
         dbfin_owner(db)
@@ -53,7 +49,7 @@ async def lifespan(app: FastAPI):
     logger.info("shutting down")
 
 
-app = FastAPI(title="Apk-Final Unified API", lifespan=lifespan)
+app = FastAPI(title="5-Backend Unified API", lifespan=lifespan)
 
 # Request logging (method, path, status, durasi)
 request_logging_middleware(app)
@@ -67,7 +63,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(haylen_router, prefix="/api/haylen")
 app.include_router(n6_router, prefix="/api/n6")
 app.include_router(dbacc_router, prefix="/api/dbacc")
 app.include_router(dbfin_router, prefix="/api/dbfin")
@@ -76,4 +71,4 @@ app.include_router(claisrox_router, prefix="/api/claisrox")
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "apps": ["haylen", "n6", "dbacc", "dbfin", "claisrox"]}
+    return {"status": "ok", "apps": ["n6", "dbacc", "dbfin", "claisrox"]}

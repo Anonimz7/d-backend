@@ -1,8 +1,4 @@
-"""CRUD meta & payload perusahaan.
-
-Salinan dari DB Acounting/backend/app/routers/companies.py — hanya import
-yang diadaptasi (access, get_db dari core). Logika & kontrak tidak berubah.
-"""
+"""CRUD perusahaan (relasional, tanpa JSON payload)."""
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -28,12 +24,8 @@ def list_companies(db: Session = Depends(get_db), _t: dict = Depends(require_per
 @router.post("", response_model=schemas.CompanyMeta)
 def create_company(body: schemas.CompanyCreate, db: Session = Depends(get_db), _t: dict = Depends(require_perm("create"))):
     cid = "co_" + uuid.uuid4().hex[:8]
-    payload = {"id": cid, "name": body.name, "industry": body.industry, "color": body.color,
-               "initial": body.name[:2].upper(), "coa": [], "journal": [], "sales": [],
-               "purchases": [], "cashbank": [], "contacts": [], "inventory": [],
-               "inventoryLogs": [], "fixedAssets": [], "counters": {}}
     c = models.Company(id=cid, name=body.name, industry=body.industry, color=body.color,
-                       initial=payload["initial"], payload=payload)
+                       initial=body.name[:2].upper())
     db.add(c)
     db.commit()
     return _meta(c)
@@ -50,7 +42,12 @@ def get_company(company_id: str, db: Session = Depends(get_db), _t: dict = Depen
     c = db.query(models.Company).filter(models.Company.id == company_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="Perusahaan tidak ditemukan")
-    return c.payload
+    # Kembalikan meta + ringkasan relasional (pengganti payload)
+    n_coa = db.query(models.CoaAccount).filter(models.CoaAccount.company_id == company_id).count()
+    n_journal = db.query(models.Journal).filter(models.Journal.company_id == company_id).count()
+    n_sales = db.query(models.SalesInvoice).filter(models.SalesInvoice.company_id == company_id).count()
+    n_purch = db.query(models.PurchaseInvoice).filter(models.PurchaseInvoice.company_id == company_id).count()
+    return {**_meta(c), "counts": {"coa": n_coa, "journal": n_journal, "sales": n_sales, "purchases": n_purch}}
 
 
 @router.put("/{company_id}")
@@ -64,6 +61,5 @@ def save_company(company_id: str, body: schemas.CompanyPayload, db: Session = De
     c.industry = body.industry
     c.color = body.color
     c.initial = body.initial
-    c.payload = body.model_dump()
     db.commit()
     return {"ok": True}

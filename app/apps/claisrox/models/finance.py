@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.apps.claisrox.models.types import Money
 from app.core.database import app_base
-Base = app_base("clx")
+Base = app_base("dclaisrox")
 
 FINANCE_ROW_ID = 1
 
@@ -12,7 +12,7 @@ class Finance(Base):
     """Satu baris saja: modal, piutang, hutang."""
 
     __tablename__ = "finance"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, default=FINANCE_ROW_ID)
     modal: Mapped[float] = mapped_column(Money, default=0)

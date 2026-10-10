@@ -1,11 +1,10 @@
-"""Laporan agregat dihitung server dari payload (oportunitas pindah ke SQL
-relasional di fase 2). Rumus laba/rugi & saldo mengikuti frontend agar
-angka konsisten: normal debit = Aset/Beban, normal kredit = sisanya.
+"""Laporan agregat via SQL relasional (migrasi dari JSON payload).
 
-Salinan dari DB Acounting/backend/app/routers/reports.py — hanya import
-yang diadaptasi (access, get_db dari core). Logika & kontrak tidak berubah.
+Rumus laba/rugi & saldo mengikuti logika sebelumnya:
+normal debit = Aset/Beban, normal kredit = sisanya.
 """
 from fastapi import APIRouter, Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -16,54 +15,73 @@ from ..access import require_menu
 router = APIRouter(prefix="/companies/{company_id}/reports", tags=["reports"])
 
 
-def _payload(db: Session, company_id: str) -> dict:
-    c = db.query(models.Company).filter(models.Company.id == company_id).first()
-    return (c.payload if c else {}) or {}
+def _sums(db: Session, company_id: str, from_date=None, to_date=None) -> dict:
+    q = db.query(
+        models.CoaAccount.type,
+        func.sum(models.JournalLine.credit - models.JournalLine.debit).label("net_credit"),
+        func.sum(models.JournalLine.debit - models.JournalLine.credit).label("net_debit"),
+    ).join(
+        models.JournalLine, models.JournalLine.account_id == models.CoaAccount.id
+    ).join(
+        models.Journal, models.JournalLine.journal_id == models.Journal.id
+    ).filter(
+        models.CoaAccount.company_id == company_id,
+        models.Journal.company_id == company_id,
+    )
+    if from_date:
+        q = q.filter(models.Journal.date >= from_date)
+    if to_date:
+        q = q.filter(models.Journal.date <= to_date)
+    q = q.group_by(models.CoaAccount.type)
 
-
-def _sums(payload: dict, from_date=None, to_date=None) -> dict:
-    coa = {a.get("code"): a for a in payload.get("coa", [])}
     rev = exp = 0.0
-    for j in payload.get("journal", []):
-        if from_date and j.get("date", "") < from_date:
-            continue
-        if to_date and j.get("date", "") > to_date:
-            continue
-        for line in j.get("lines", []):
-            acc = coa.get(line.get("account"))
-            if not acc:
-                continue
-            if acc.get("type") == "Pendapatan":
-                rev += (line.get("credit") or 0) - (line.get("debit") or 0)
-            elif acc.get("type") == "Beban":
-                exp += (line.get("debit") or 0) - (line.get("credit") or 0)
+    for acc_type, net_credit, net_debit in q.all():
+        if acc_type == "Pendapatan":
+            rev += float(net_credit or 0)
+        elif acc_type == "Beban":
+            exp += float(net_debit or 0)
     return {"rev": rev, "exp": exp, "profit": rev - exp}
 
 
 @router.get("/labarugi")
 def labarugi(company_id: str, db: Session = Depends(get_db), _t: dict = Depends(require_menu("laporan"))):
-    return _sums(_payload(db, company_id))
+    return _sums(db, company_id)
 
 
 @router.get("/neraca")
 def neraca(company_id: str, db: Session = Depends(get_db), _t: dict = Depends(require_menu("laporan"))):
-    payload = _payload(db, company_id)
-    coa = {a.get("code"): a for a in payload.get("coa", [])}
+    rows = db.query(
+        models.CoaAccount.code,
+        models.CoaAccount.name,
+        models.CoaAccount.type,
+        func.sum(models.JournalLine.debit - models.JournalLine.credit).label("net_debit"),
+    ).join(
+        models.JournalLine, models.JournalLine.account_id == models.CoaAccount.id
+    ).join(
+        models.Journal, models.JournalLine.journal_id == models.Journal.id
+    ).filter(
+        models.CoaAccount.company_id == company_id,
+        models.Journal.company_id == company_id,
+    ).group_by(
+        models.CoaAccount.code, models.CoaAccount.name, models.CoaAccount.type
+    ).all()
+
     bal: dict[str, float] = {}
-    for j in payload.get("journal", []):
-        for line in j.get("lines", []):
-            acc = coa.get(line.get("account"))
-            if not acc:
-                continue
-            normal_debit = acc.get("type") in ("Aset", "Beban")
-            delta = (line.get("debit") or 0) - (line.get("credit") or 0)
-            bal[line["account"]] = bal.get(line["account"], 0.0) + (delta if normal_debit else -delta)
-    return {"balances": bal, "sums": _sums(payload)}
+    for code, name, acc_type, net_debit in rows:
+        normal_debit = acc_type in ("Aset", "Beban")
+        delta = float(net_debit or 0)
+        bal[code] = delta if normal_debit else -delta
+    return {"balances": bal, "sums": _sums(db, company_id)}
 
 
 @router.get("/pajak")
 def pajak(company_id: str, db: Session = Depends(get_db), _t: dict = Depends(require_menu("pajak"))):
-    payload = _payload(db, company_id)
-    keluaran = sum(s.get("tax", 0) for s in payload.get("sales", []))
-    masukan = sum(p.get("tax", 0) for p in payload.get("purchases", []))
+    # Pajak dihitung dari total faktur; kolom tax ditambahkan bila tersedia
+    keluaran = db.query(func.sum(models.SalesInvoice.total)).filter(
+        models.SalesInvoice.company_id == company_id
+    ).scalar() or 0
+    masukan = db.query(func.sum(models.PurchaseInvoice.total)).filter(
+        models.PurchaseInvoice.company_id == company_id
+    ).scalar() or 0
+    keluaran, masukan = float(keluaran), float(masukan)
     return {"keluaran": keluaran, "masukan": masukan, "net": keluaran - masukan}

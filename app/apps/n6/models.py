@@ -40,7 +40,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import JSONType, app_base
-Base = app_base("n6")
+Base = app_base("dn6sport")
 
 from .base import TimestampMixin
 
@@ -109,7 +109,7 @@ class Account(Base, TimestampMixin):
 
     __table_args__ = (
         Index("ix_accounts_tier_active", "tier", "is_active"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
     def __repr__(self) -> str:  # pragma: no cover - debugging aid
@@ -144,7 +144,7 @@ class Client(Base, TimestampMixin):
         back_populates="client", cascade="all, delete-orphan"
     )
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
     @property
     def is_archived(self) -> bool:
@@ -174,7 +174,7 @@ class Coach(Base, TimestampMixin):
     )
     attendances: Mapped[list["Attendance"]] = relationship(back_populates="coach")
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 # -------------------------------------------------------------------- programs
@@ -199,7 +199,7 @@ class Program(Base, TimestampMixin):
     enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="program")
 
     __table_args__ = (UniqueConstraint("name", "category", name="uq_programs_name_category"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -220,7 +220,7 @@ class PriceItem(Base, TimestampMixin):
 
     program: Mapped["Program | None"] = relationship(back_populates="prices")
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class Enrollment(Base, TimestampMixin):
@@ -258,7 +258,7 @@ def _weeks(weeks: int):
 
     return timedelta(weeks=max(0, int(weeks or 0)))
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 # ------------------------------------------------------------------- schedules
@@ -284,7 +284,7 @@ class CoachScheduleSlot(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("coach_id", "weekday", "start_time", name="uq_slots_coach_weekday_start"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -309,7 +309,7 @@ class ClientSchedule(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("client_id", "weekday", "start_time", name="uq_csched_client_weekday_start"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -333,7 +333,7 @@ class ScheduleRequest(Base, TimestampMixin):
 
     client: Mapped["Client"] = relationship()
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 # --------------------------------------------------------------------- finance
@@ -347,7 +347,7 @@ class Expense(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[int | None] = mapped_column(ForeignKey("n6.accounts.id", ondelete="SET NULL"))
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class Commission(Base, TimestampMixin):
@@ -370,7 +370,7 @@ class Commission(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("coach_id", "period", name="uq_commissions_coach_period"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -394,7 +394,7 @@ class Ticket(Base, TimestampMixin):
         back_populates="ticket", cascade="all, delete-orphan", order_by="TicketReply.created_at"
     )
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class TicketReply(Base, TimestampMixin):
@@ -409,7 +409,7 @@ class TicketReply(Base, TimestampMixin):
 
     ticket: Mapped["Ticket"] = relationship(back_populates="replies")
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class Message(Base, TimestampMixin):
@@ -432,7 +432,7 @@ class Message(Base, TimestampMixin):
     recipient: Mapped["Account | None"] = relationship(foreign_keys=[recipient_id])
     client: Mapped["Client | None"] = relationship()
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class Attendance(Base, TimestampMixin):
@@ -457,7 +457,7 @@ class Attendance(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("client_id", "session_on", name="uq_attendance_client_day"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -480,7 +480,7 @@ class Correction(Base, TimestampMixin):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     resolution_note: Mapped[str | None] = mapped_column(Text)
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 class AthleteNote(Base, TimestampMixin):
@@ -506,7 +506,7 @@ class AthleteNote(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("client_id", "period", name="uq_athlete_client_period"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -526,7 +526,7 @@ class MonthlyReport(Base, TimestampMixin):
 
     __table_args__ = (
         UniqueConstraint("period", "scope", "audience", name="uq_reports_period_scope_audience"),
-        {"schema": "n6"},
+        {"schema": "dn6sport"},
     )
 
 
@@ -544,7 +544,7 @@ class TrainingLog(Base, TimestampMixin):
 
     client: Mapped["Client"] = relationship()
 
-    __table_args__ = {"schema": "n6"}
+    __table_args__ = {"schema": "dn6sport"}
 
 
 __all__ = [

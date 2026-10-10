@@ -5,12 +5,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.apps.claisrox.models.types import JsonType, Money
 from app.core.database import app_base
-Base = app_base("clx")
+Base = app_base("dclaisrox")
 
 
 class Sale(Base):
     __tablename__ = "sales"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     code: Mapped[str] = mapped_column(String(40), unique=True)
@@ -22,7 +22,7 @@ class Sale(Base):
 
 class Purchase(Base):
     __tablename__ = "purchases"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     code: Mapped[str] = mapped_column(String(40), unique=True)
@@ -34,7 +34,7 @@ class Purchase(Base):
 
 class OnlineOrder(Base):
     __tablename__ = "online_orders"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     resi: Mapped[str] = mapped_column(String(40), unique=True)

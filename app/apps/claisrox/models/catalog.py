@@ -3,12 +3,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.apps.claisrox.models.types import Money
 from app.core.database import app_base
-Base = app_base("clx")
+Base = app_base("dclaisrox")
 
 
 class Product(Base):
     __tablename__ = "products"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(150))
@@ -22,7 +22,7 @@ class Product(Base):
 
 class Material(Base):
     __tablename__ = "materials"
-    __table_args__ = {"schema": "clx"}
+    __table_args__ = {"schema": "dclaisrox"}
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     name: Mapped[str] = mapped_column(String(150))

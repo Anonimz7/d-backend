@@ -2,7 +2,7 @@
 
 Klaim token:
     sub  : id user (string)
-    app  : namespace aplikasi ("haylen" | "n6" | "dbacc" | "dbfin" | "claisrox")
+    app  : namespace aplikasi ("n6" | "dbacc" | "dbfin" | "claisrox")
     tier : tier user (int)
     typ  : "access" | "refresh"
     iat / exp
