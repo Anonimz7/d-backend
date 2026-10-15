@@ -14,12 +14,31 @@ def _pw() -> str:
 
 
 def ensure_owner(db: Session) -> None:
-    if db.query(Member).filter_by(login="bima").first():
-        return
-    db.add(Member(id="u1", name="Bima Wirawan", role="owner", login="bima",
-                  password_hash=_pw(), email="bima@numbersix.example",
-                  wa="0812-3456-7801", loc=""))
-    db.flush()
+    # Produksi: jangan buat user demo otomatis. Owner dibuat manual via SQL.
+    # Hanya pastikan tidak ada konflik jika dipanggil.
+    return
+
+
+def ensure_basics(db: Session) -> None:
+    """Seed minimal untuk produksi: hanya settings esensial (targets, acl).
+    Tidak membuat user/program/template demo."""
+    if not db.query(Setting).filter_by(key="targets").first():
+        db.add(Setting(key="targets", value={"rev": 45000000, "klien": 5, "retensi": 75, "koreksi": 90}))
+    if not db.query(Setting).filter_by(key="acl").first():
+        db.add(Setting(key="acl", value={
+            "admin": {"beranda": "full", "klien": "full", "coach": "full", "koreksi": "full",
+                      "program": "full", "pesan": "full", "absensi": "full", "komisi": "mask",
+                      "keuangan": "none", "laporan": "mask", "anggota": "full",
+                      "setting": "full", "progress": "none"},
+            "head": {"beranda": "full", "klien": "full", "coach": "full", "koreksi": "full",
+                     "program": "full", "pesan": "full", "absensi": "full", "komisi": "none",
+                     "keuangan": "none", "laporan": "mask", "anggota": "none",
+                     "setting": "full", "progress": "none"},
+            "coach": {"beranda": "full", "klien": "full", "coach": "full", "koreksi": "none",
+                      "program": "full", "pesan": "full", "absensi": "full", "komisi": "full",
+                      "keuangan": "none", "laporan": "none", "anggota": "none",
+                      "setting": "full", "progress": "none"},
+        }))
 
 
 def seed_all(db: Session) -> None:

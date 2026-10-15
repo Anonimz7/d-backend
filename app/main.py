@@ -21,7 +21,7 @@ from app.apps.dbacc.seed import ensure_owner as dbacc_owner
 from app.apps.dbfin.router import router as dbfin_router
 from app.apps.dbfin.seed import ensure_owner as dbfin_owner
 from app.apps.dbn6sport.router import router as dbn6sport_router
-from app.apps.dbn6sport.seed import seed_all as dbn6sport_seed
+from app.apps.dbn6sport.seed import ensure_basics as dbn6sport_seed
 from app.core.config import settings
 from app.core.database import SessionLocal, init_db
 from app.core.logging import setup_logging, get_logger, request_logging_middleware
