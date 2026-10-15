@@ -1,12 +1,12 @@
 """Backend gabungan: 1 proses FastAPI untuk 4 aplikasi.
 
 Namespace:
-    /api/n6/v1/*      -> N6 Sport (dashboard kepelatihan)
-    /api/dbacc/*      -> DB Accounting
-    /api/dbfin/*      -> DB Finance
-    /api/claisrox/*   -> Claisrox (operasional produksi)
+    /api/dbn6sport/v1/* -> dash-n6sport (dashboard kepelatihan)
+    /api/dbacc/*        -> DB Accounting
+    /api/dbfin/*        -> DB Finance
+    /api/claisrox/*     -> Claisrox (operasional produksi)
 
-Jalankan:  uvicorn app.main:app --reload   (dari folder 5-backend/)
+Jalankan:  uvicorn app.main:app --reload   (dari folder d-backend/)
 Dokumen:   http://localhost:8000/docs
 """
 from contextlib import asynccontextmanager
@@ -20,8 +20,8 @@ from app.apps.dbacc.router import router as dbacc_router
 from app.apps.dbacc.seed import ensure_owner as dbacc_owner
 from app.apps.dbfin.router import router as dbfin_router
 from app.apps.dbfin.seed import ensure_owner as dbfin_owner
-from app.apps.n6.router import router as n6_router
-from app.apps.n6.seed import ensure_owner as n6_owner
+from app.apps.dbn6sport.router import router as dbn6sport_router
+from app.apps.dbn6sport.seed import ensure_owner as dbn6sport_owner
 from app.core.config import settings
 from app.core.database import SessionLocal, init_db
 from app.core.logging import setup_logging, get_logger, request_logging_middleware
@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
     init_db()
     db = SessionLocal()
     try:
-        n6_owner(db)
+        dbn6sport_owner(db)
         dbacc_owner(db)
         dbfin_owner(db)
         claisrox_owner(db)
@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
     logger.info("shutting down")
 
 
-app = FastAPI(title="5-Backend Unified API", lifespan=lifespan)
+app = FastAPI(title="d-backend Unified API", lifespan=lifespan)
 
 # Request logging (method, path, status, durasi)
 request_logging_middleware(app)
@@ -63,7 +63,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(n6_router, prefix="/api/n6")
+app.include_router(dbn6sport_router, prefix="/api/dbn6sport/v1")
 app.include_router(dbacc_router, prefix="/api/dbacc")
 app.include_router(dbfin_router, prefix="/api/dbfin")
 app.include_router(claisrox_router, prefix="/api/claisrox")
@@ -71,4 +71,4 @@ app.include_router(claisrox_router, prefix="/api/claisrox")
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "apps": ["n6", "dbacc", "dbfin", "claisrox"]}
+    return {"status": "ok", "apps": ["dbn6sport", "dbacc", "dbfin", "claisrox"]}
