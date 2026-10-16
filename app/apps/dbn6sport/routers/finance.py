@@ -45,6 +45,17 @@ def create_transaction(body: schemas.TransactionIn,
     return {"data": _out(tx)}
 
 
+@router.delete("/transactions/{tid}", status_code=204)
+def delete_transaction(tid: str, user: models.Member = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    tx = db.query(models.Transaction).filter_by(id=tid).first()
+    if not tx:
+        raise HTTPException(status_code=404, detail="Transaksi tidak ada")
+    db.delete(tx)
+    db.commit()
+    return None
+
+
 @router.get("/finance/summary")
 def finance_summary(user: models.Member = Depends(get_current_user),
                     db: Session = Depends(get_db)):

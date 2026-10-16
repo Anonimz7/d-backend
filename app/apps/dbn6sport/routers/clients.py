@@ -85,6 +85,17 @@ def patch_client(cid: str, body: schemas.ClientPatch,
     return {"data": _out(c)}
 
 
+@router.delete("/clients/{cid}", status_code=204)
+def delete_client(cid: str, user: models.Member = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    c = db.query(models.Client).filter_by(id=cid).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Klien tidak ada")
+    db.delete(c)
+    db.commit()
+    return None
+
+
 @router.post("/clients/{cid}/archive")
 def archive_client(cid: str, user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):

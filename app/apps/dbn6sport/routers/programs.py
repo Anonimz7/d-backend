@@ -43,3 +43,17 @@ def patch_program(pid: str, body: schemas.ProgramPatch,
         setattr(p, k, v)
     db.commit(); db.refresh(p)
     return {"data": _out(p)}
+
+
+@router.delete("/programs/{pid}", status_code=204)
+def delete_program(pid: str, user: models.Member = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    p = db.query(models.Program).filter_by(id=pid).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Program tidak ada")
+    n = db.query(models.Client).filter_by(program_id=pid).count()
+    if n:
+        raise HTTPException(status_code=400, detail=f"Masih dipakai {n} klien.")
+    db.delete(p)
+    db.commit()
+    return None
