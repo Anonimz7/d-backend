@@ -22,6 +22,7 @@ class UserOut(BaseModel):
 class MemberIn(BaseModel):
     name: str; role: str; login: str
     email: Optional[str] = None; wa: Optional[str] = None; loc: Optional[str] = None
+    password: Optional[str] = None
 
 
 class MemberPatch(BaseModel):

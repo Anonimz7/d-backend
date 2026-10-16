@@ -32,10 +32,11 @@ def list_members(user: models.Member = Depends(get_current_user),
 def create_member(body: schemas.MemberIn,
                   user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
+    pw = body.password or "x"
     m = models.Member(id=_nid("m"), name=body.name, role=body.role,
                       login=body.login, email=body.email, wa=body.wa or "",
                       loc=body.loc or "",
-                      password_hash=bcrypt.hashpw(b"x", bcrypt.gensalt()).decode())
+                      password_hash=bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}
 
