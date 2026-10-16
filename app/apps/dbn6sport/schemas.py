@@ -35,12 +35,14 @@ class ProgramIn(BaseModel):
     name: str; price: int; unit: Optional[str] = None
     wk: int; lvl: float
     peserta: int = 1; fee: int = 0
+    detail: Optional[dict] = None
 
 
 class ProgramPatch(BaseModel):
     name: Optional[str] = None; price: Optional[int] = None
     unit: Optional[str] = None; wk: Optional[int] = None; lvl: Optional[float] = None
     peserta: Optional[int] = None; fee: Optional[int] = None
+    detail: Optional[dict] = None
 
 
 # ---------- clients ----------

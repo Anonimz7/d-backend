@@ -13,7 +13,8 @@ _cnt = {"p": 100}
 
 def _out(p):
     return {"id": p.id, "name": p.name, "price": p.price, "unit": p.unit,
-            "wk": p.wk, "lvl": float(p.lvl), "peserta": p.peserta, "fee": p.fee}
+            "wk": p.wk, "lvl": float(p.lvl), "peserta": p.peserta, "fee": p.fee,
+            "detail": p.detail}
 
 
 @router.get("/programs")

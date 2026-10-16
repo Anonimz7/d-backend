@@ -43,6 +43,7 @@ class Program(Base):
     lvl = Column(Numeric(4, 2), nullable=False)
     peserta = Column(Integer, nullable=False, default=1)
     fee = Column(Integer, nullable=False, default=0)
+    detail = Column(JSONB, nullable=True)  # susunan program lengkap (sched, tpls, dll)
 
 
 class Client(Base):
