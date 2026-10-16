@@ -119,6 +119,7 @@ class BroadcastIn(BaseModel):
 # ---------- settings ----------
 class SettingsPatch(BaseModel):
     targets: Optional[dict] = None; acl: Optional[dict] = None
+    program_tpls: Optional[list] = None
 
 
 # ---------- activity ----------
