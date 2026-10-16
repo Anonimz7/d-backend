@@ -64,6 +64,10 @@ def delete_member(mid: str,
         raise HTTPException(status_code=400, detail="Tidak bisa hapus akun sendiri")
     if m.role == "owner":
         raise HTTPException(status_code=400, detail="Tidak bisa hapus owner")
+    # Cek relasi: jangan hapus jika masih jadi coach klien aktif
+    n_client = db.query(models.Client).filter_by(coach_id=mid).count()
+    if n_client:
+        raise HTTPException(status_code=400, detail=f"Masih menjadi coach {n_client} klien. Pindahkan dulu.")
     db.delete(m)
     db.commit()
     return None
