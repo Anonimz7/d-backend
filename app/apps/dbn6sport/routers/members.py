@@ -51,3 +51,19 @@ def patch_member(mid: str, body: schemas.MemberPatch,
         setattr(m, k, v)
     db.commit(); db.refresh(m)
     return {"data": _out(m)}
+
+
+@router.delete("/members/{mid}", status_code=204)
+def delete_member(mid: str,
+                  user: models.Member = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    m = db.query(models.Member).filter_by(id=mid).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Anggota tidak ada")
+    if m.id == user.id:
+        raise HTTPException(status_code=400, detail="Tidak bisa hapus akun sendiri")
+    if m.role == "owner":
+        raise HTTPException(status_code=400, detail="Tidak bisa hapus owner")
+    db.delete(m)
+    db.commit()
+    return None
