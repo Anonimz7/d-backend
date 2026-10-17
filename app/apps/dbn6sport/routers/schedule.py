@@ -1,7 +1,8 @@
-"""GET /schedule, POST/DELETE /bookings"""
-from typing import Optional
+"""GET /schedule, POST/DELETE /bookings, PUT /schedule/patterns"""
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -11,6 +12,12 @@ from ..access import get_current_user
 
 router = APIRouter()
 _cnt = {"bk": 100}
+
+
+class PatternIn(BaseModel):
+    coach_id: str
+    day: int
+    slots: List[str]
 
 
 @router.get("/schedule")
@@ -49,5 +56,21 @@ def create_booking(body: schemas.BookingIn,
 def delete_booking(bid: str, user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     db.query(models.Booking).filter_by(id=bid).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@router.put("/schedule/patterns")
+def update_pattern(body: PatternIn,
+                   user: models.Member = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    p = db.query(models.SchedulePattern).filter_by(
+        coach_id=body.coach_id, day=body.day).first()
+    if p:
+        p.slots = body.slots
+    else:
+        p = models.SchedulePattern(
+            coach_id=body.coach_id, day=body.day, slots=body.slots)
+        db.add(p)
     db.commit()
     return {"ok": True}

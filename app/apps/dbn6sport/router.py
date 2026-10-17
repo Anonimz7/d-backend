@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from .routers import (
-    activity, auth, clients, corrections, dashboard, finance,
+    activity, auth, attendance, clients, corrections, dashboard, finance,
     members, messages, portal, programs, requests, schedule, settings,
 )
 
@@ -22,3 +22,4 @@ router.include_router(dashboard.router)
 router.include_router(settings.router)
 router.include_router(activity.router)
 router.include_router(portal.router)
+router.include_router(attendance.router)

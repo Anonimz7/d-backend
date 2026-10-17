@@ -4,8 +4,10 @@ Desain: RANCANGAN_DBN6SPORT.md
 - String ID sebagai PK (u1, cl1, p1, rp1, ...) — sama dengan frontend.
 - Field fase-4 (note, grp, end, link_url, read_at) disimpan permanen.
 """
+from datetime import datetime
+
 from sqlalchemy import (
-    Boolean, Column, Date, DateTime, ForeignKey, Integer,
+    Boolean, Column, Date, DateTime, Float, ForeignKey, Integer,
     Numeric, String, Text, func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -152,6 +154,41 @@ class Booking(Base):
     client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id", ondelete="CASCADE"), index=True)
     day = Column(Integer)
     time = Column(String(8))
+
+
+class Attendance(Base):
+    __tablename__ = "attendance"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(String(32), primary_key=True)  # date|coach|time
+    date = Column(String(10), index=True)
+    coach_id = Column(String(16), ForeignKey(f"{SCHEMA}.members.id"), index=True)
+    time = Column(String(8))
+    status = Column(String(16))  # Hadir/Izin/Alpha
+    by_name = Column(String(100))
+    at = Column(String(8))
+
+
+class CoachProfile(Base):
+    __tablename__ = "coach_profiles"
+    __table_args__ = {"schema": SCHEMA}
+
+    coach_id = Column(String(16), ForeignKey(f"{SCHEMA}.members.id"), primary_key=True)
+    rating = Column(Float, default=4.5)
+    reviews = Column(Integer, default=0)
+    since = Column(String(10))
+    skills = Column(JSONB, default=dict)  # {pub, ajar, ilmu, prog, kom}
+
+
+class ShareLink(Base):
+    __tablename__ = "share_links"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(String(32), primary_key=True)
+    client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id", ondelete="CASCADE"), index=True)
+    date = Column(String(10), index=True)
+    url = Column(String(500))
+    at = Column(DateTime, default=datetime.utcnow)
 
 
 class CorrectionTemplate(Base):
