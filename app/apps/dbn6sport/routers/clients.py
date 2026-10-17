@@ -22,7 +22,8 @@ def _out(c):
             "hrmax": c.hrmax, "mp": c.mp,
             "arch": c.arch.isoformat() if c.arch else None,
             "note": c.note or "", "grp": c.grp,
-            "share_url": c.share_url}
+            "share_url": c.share_url,
+            "created_at": c.created_at.isoformat() if c.created_at else None}
 
 
 def _out_rep(r):
