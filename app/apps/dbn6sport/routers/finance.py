@@ -80,3 +80,37 @@ def commissions(coach_id: Optional[str] = None,
         byc[t.coach_id or "-"] = byc.get(t.coach_id or "-", 0) + t.amount
     return {"data": [{"coach_id": k, "revenue": v, "commission": round(v * 0.2)}
                      for k, v in byc.items()]}
+
+
+@router.get("/commission-payments")
+def list_commission_payments(user: models.Member = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    rows = db.query(models.CommissionPayment).all()
+    return {"data": [{"id": r.id, "coach_id": r.coach_id, "period": r.period,
+                      "amount": r.amount, "date": r.date, "method": r.method,
+                      "note": r.note} for r in rows]}
+
+
+@router.post("/commission-payments", status_code=201)
+def create_commission_payment(body: dict,
+                              user: models.Member = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    from ..ids import next_id
+    pid = next_id(db, models.CommissionPayment, "cp")
+    r = models.CommissionPayment(
+        id=pid, coach_id=body.get("coach_id"), period=body.get("period"),
+        amount=body.get("amount", 0), date=body.get("date"),
+        method=body.get("method"), note=body.get("note", ""))
+    db.add(r); db.commit(); db.refresh(r)
+    return {"data": {"id": r.id, "coach_id": r.coach_id, "period": r.period,
+                     "amount": r.amount, "date": r.date, "method": r.method}}
+
+
+@router.delete("/commission-payments/{pid}")
+def delete_commission_payment(pid: str,
+                               user: models.Member = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    r = db.query(models.CommissionPayment).filter_by(id=pid).first()
+    if r:
+        db.delete(r); db.commit()
+    return {"data": {"ok": True}}

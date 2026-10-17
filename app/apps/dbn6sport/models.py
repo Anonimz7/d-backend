@@ -216,3 +216,17 @@ class ActivityLog(Base):
     t = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     who = Column(String(160))
     text = Column(Text, nullable=False)
+
+
+class CommissionPayment(Base):
+    __tablename__ = "commission_payments"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(String(32), primary_key=True)
+    coach_id = Column(String(16), ForeignKey(f"{SCHEMA}.members.id"), index=True)
+    period = Column(String(32))  # label periode, misal "7 hari"
+    amount = Column(Integer, default=0)
+    date = Column(String(10))
+    method = Column(String(32))
+    note = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
