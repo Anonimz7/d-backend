@@ -11,8 +11,9 @@ Dokumen:   http://localhost:8000/docs
 """
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.apps.claisrox.router import router as claisrox_router
 from app.apps.claisrox.seed import ensure_owner as claisrox_owner
@@ -50,6 +51,21 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="d-backend Unified API", lifespan=lifespan)
+
+# Global exception handler: pastikan 500 selalu kirim CORS header
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Server error: {type(exc).__name__}: {str(exc)}"},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 # Request logging (method, path, status, durasi)
 request_logging_middleware(app)
