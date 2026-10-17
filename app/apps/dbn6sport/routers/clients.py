@@ -53,8 +53,13 @@ def list_clients(status: str = "aktif", q: Optional[str] = None,
 def create_client(body: schemas.ClientIn,
                   user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
-    n = db.query(models.Client).count()
-    uid = f"N6-{1001 + n}"
+    import re
+    maxn = 1000
+    for (u,) in db.query(models.Client.uid).all():
+        m = re.match(r'N6-(\d+)$', u or '')
+        if m:
+            maxn = max(maxn, int(m.group(1)))
+    uid = f"N6-{maxn + 1}"
     c = models.Client(id=next_id(db, models.Client, "cl"), uid=uid,
                       share_url=f"https://numbersix.example/sw/{uid}",
                       **body.model_dump())
