@@ -108,7 +108,9 @@ def list_share_links(user: models.Member = Depends(get_current_user),
                      db: Session = Depends(get_db)):
     rows = db.query(models.ShareLink).order_by(models.ShareLink.date.desc()).all()
     return {"data": [
-        {"id": r.id, "client_id": r.client_id, "date": r.date, "url": r.url}
+        {"id": r.id, "client_id": r.client_id, "date": r.date, "url": r.url,
+         "fix_text": r.fix_text, "fix_by": r.fix_by,
+         "fix_at": r.fix_at.isoformat() if r.fix_at else None}
         for r in rows
     ]}
 
@@ -130,3 +132,24 @@ def save_share_link(body: ShareLinkIn,
         db.add(r)
     db.commit()
     return {"data": {"id": r.id}}
+
+
+@router.patch("/share-links/{lid}")
+def patch_share_link(lid: str, body: dict,
+                     user: models.Member = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    from datetime import datetime
+    r = db.query(models.ShareLink).filter_by(id=lid).first()
+    if not r and "|" in lid:
+        # Fallback: cari by client_id|date
+        parts = lid.split("|")
+        if len(parts) == 2:
+            r = db.query(models.ShareLink).filter_by(client_id=parts[0], date=parts[1]).first()
+    if not r:
+        return {"data": {"ok": False}}
+    if "fix_text" in body:
+        r.fix_text = body["fix_text"]
+        r.fix_by = user.id
+        r.fix_at = datetime.utcnow()
+    db.commit()
+    return {"data": {"ok": True}}

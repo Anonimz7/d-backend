@@ -188,6 +188,9 @@ class ShareLink(Base):
     client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id", ondelete="CASCADE"), index=True)
     date = Column(String(10), index=True)
     url = Column(String(500))
+    fix_text = Column(Text)
+    fix_by = Column(String(16))
+    fix_at = Column(DateTime)
     at = Column(DateTime, default=datetime.utcnow)
 
 
