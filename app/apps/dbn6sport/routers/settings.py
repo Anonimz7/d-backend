@@ -38,3 +38,13 @@ def get_templates(user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
     return {"data": [{"id": t.id, "title": t.title, "text": t.text}
                      for t in db.query(models.CorrectionTemplate).all()]}
+
+@router.post("/correction-templates", status_code=201)
+def create_template(body: dict,
+                    user: models.Member = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    tid = f"t{int(__import__('time').time()*1000)%1000000}"
+    t = models.CorrectionTemplate(id=tid, title=body.get("title","Template baru"),
+                                  text=body.get("text",""))
+    db.add(t); db.commit(); db.refresh(t)
+    return {"data": {"id": t.id, "title": t.title, "text": t.text}}
