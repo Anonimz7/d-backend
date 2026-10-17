@@ -8,9 +8,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"r": 100}
 
 
 def _out(r):
@@ -34,8 +34,7 @@ def list_requests(status: Optional[str] = None, type: Optional[str] = None,
 def create_request(body: schemas.RequestIn,
                    user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    _cnt["r"] += 1
-    r = models.Request(id=f"r{_cnt['r']}", who=user.id,
+    r = models.Request(id=next_id(db, models.Request, "r"), who=user.id,
                        status="Menunggu", **body.model_dump())
     db.add(r); db.commit(); db.refresh(r)
     return {"data": _out(r)}

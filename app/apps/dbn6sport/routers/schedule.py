@@ -9,9 +9,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"bk": 100}
 
 
 class PatternIn(BaseModel):
@@ -45,8 +45,7 @@ def get_schedule(coach_id: Optional[str] = None,
 def create_booking(body: schemas.BookingIn,
                    user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    _cnt["bk"] += 1
-    b = models.Booking(id=f"bk{_cnt['bk']}", **body.model_dump())
+    b = models.Booking(id=next_id(db, models.Booking, "bk"), **body.model_dump())
     db.add(b); db.commit(); db.refresh(b)
     return {"data": {"id": b.id, "coach_id": b.coach_id, "client_id": b.client_id,
                      "day": b.day, "time": b.time}}

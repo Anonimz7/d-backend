@@ -8,9 +8,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"m": 100, "b": 100}
 
 
 def _out(m):
@@ -31,8 +31,7 @@ def get_team(user: models.Member = Depends(get_current_user),
 def post_team(body: schemas.MessageIn,
               user: models.Member = Depends(get_current_user),
               db: Session = Depends(get_db)):
-    _cnt["m"] += 1
-    m = models.Message(id=f"m{_cnt['m']}", kind="team", sender=user.id,
+    m = models.Message(id=next_id(db, models.Message, "m"), sender=user.id,
                        text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}
@@ -50,8 +49,7 @@ def get_dm(cid: str, user: models.Member = Depends(get_current_user),
 def post_dm(cid: str, body: schemas.MessageIn,
             user: models.Member = Depends(get_current_user),
             db: Session = Depends(get_db)):
-    _cnt["m"] += 1
-    m = models.Message(id=f"m{_cnt['m']}", kind="dm", thread_id=cid,
+    m = models.Message(id=next_id(db, models.Message, "m"), thread_id=cid,
                        sender=user.id, text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}
@@ -69,8 +67,7 @@ def get_broadcasts(user: models.Member = Depends(get_current_user),
 def post_broadcast(body: schemas.BroadcastIn,
                    user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    _cnt["b"] += 1
-    m = models.Message(id=f"b{_cnt['b']}", kind="broadcast",
+    m = models.Message(id=next_id(db, models.Message, "b"), kind="broadcast",
                        sender=user.id, to_text=body.to, text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}

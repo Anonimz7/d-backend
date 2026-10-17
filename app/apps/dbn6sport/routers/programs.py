@@ -6,9 +6,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"p": 100}
 
 
 def _out(p):
@@ -27,8 +27,7 @@ def list_programs(user: models.Member = Depends(get_current_user),
 def create_program(body: schemas.ProgramIn,
                    user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    _cnt["p"] += 1
-    p = models.Program(id=f"p{_cnt['p']}", **body.model_dump())
+    p = models.Program(id=next_id(db, models.Program, "p"), **body.model_dump())
     db.add(p); db.commit(); db.refresh(p)
     return {"data": _out(p)}
 

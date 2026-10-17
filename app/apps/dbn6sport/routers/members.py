@@ -7,14 +7,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"m": 100}
-
-
-def _nid(p):
-    _cnt[p] += 1
-    return f"{p}{_cnt[p]}"
 
 
 def _out(m):
@@ -33,7 +28,7 @@ def create_member(body: schemas.MemberIn,
                   user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
     pw = body.password or "x"
-    m = models.Member(id=_nid("m"), name=body.name, role=body.role,
+    m = models.Member(id=next_id(db, models.Member, "m"), name=body.name, role=body.role,
                       login=body.login, email=body.email, wa=body.wa or "",
                       loc=body.loc or "",
                       password_hash=bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode())

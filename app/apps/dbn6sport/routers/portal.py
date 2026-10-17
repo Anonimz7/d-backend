@@ -6,8 +6,9 @@ from fastapi import Depends
 from app.core.database import get_db
 
 from .. import models, schemas
+from ..ids import next_id
 from .clients import _out as _out_client, _out_rep
-from .messages import _out as _out_msg, _cnt as _msg_cnt
+from .messages import _out as _out_msg
 
 router = APIRouter()
 
@@ -36,8 +37,7 @@ def portal_message(uid: str, body: schemas.MessageIn,
     c = db.query(models.Client).filter_by(uid=uid).first()
     if not c:
         raise HTTPException(status_code=404, detail="Link tidak valid")
-    _msg_cnt["m"] += 1
-    m = models.Message(id=f"m{_msg_cnt['m']}", kind="dm",
+    m = models.Message(id=next_id(db, models.Message, "m"), kind="dm",
                        thread_id=c.id, sender=c.id, text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out_msg(m)}

@@ -9,9 +9,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"cl": 100, "rp": 1000}
 
 
 def _out(c):
@@ -53,10 +53,9 @@ def list_clients(status: str = "aktif", q: Optional[str] = None,
 def create_client(body: schemas.ClientIn,
                   user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
-    _cnt["cl"] += 1
     n = db.query(models.Client).count()
     uid = f"N6-{1001 + n}"
-    c = models.Client(id=f"cl{_cnt['cl']}", uid=uid,
+    c = models.Client(id=next_id(db, models.Client, "cl"), uid=uid,
                       share_url=f"https://numbersix.example/sw/{uid}",
                       **body.model_dump())
     db.add(c); db.commit(); db.refresh(c)
@@ -132,8 +131,7 @@ def list_reports(cid: str, from_: Optional[str] = None, to: Optional[str] = None
 def create_report(cid: str, body: schemas.ReportIn,
                   user: models.Member = Depends(get_current_user),
                   db: Session = Depends(get_db)):
-    _cnt["rp"] += 1
-    r = models.Report(id=f"rp{_cnt['rp']}", client_id=cid, **body.model_dump())
+    r = models.Report(id=next_id(db, models.Report, "rp", start=1000), client_id=cid, **body.model_dump())
     db.add(r); db.commit(); db.refresh(r)
     return {"data": _out_rep(r)}
 

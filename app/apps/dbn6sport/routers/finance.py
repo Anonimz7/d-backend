@@ -9,9 +9,9 @@ from app.core.database import get_db
 
 from .. import models, schemas
 from ..access import get_current_user
+from ..ids import next_id
 
 router = APIRouter()
-_cnt = {"t": 1000}
 
 
 def _out(t):
@@ -37,9 +37,8 @@ def list_transactions(from_: Optional[str] = None, to: Optional[str] = None,
 def create_transaction(body: schemas.TransactionIn,
                        user: models.Member = Depends(get_current_user),
                        db: Session = Depends(get_db)):
-    _cnt["t"] += 1
     d = body.model_dump()
-    tx = models.Transaction(id=f"t{_cnt['t']}", description=d.pop("desc", ""),
+    tx = models.Transaction(id=next_id(db, models.Transaction, "t", start=1000), description=d.pop("desc", ""),
                             **d)
     db.add(tx); db.commit(); db.refresh(tx)
     return {"data": _out(tx)}
