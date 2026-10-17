@@ -31,7 +31,7 @@ def get_team(user: models.Member = Depends(get_current_user),
 def post_team(body: schemas.MessageIn,
               user: models.Member = Depends(get_current_user),
               db: Session = Depends(get_db)):
-    m = models.Message(id=next_id(db, models.Message, "m"), sender=user.id,
+    m = models.Message(id=next_id(db, models.Message, "m"), kind="team", sender=user.id,
                        text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}
@@ -49,7 +49,7 @@ def get_dm(cid: str, user: models.Member = Depends(get_current_user),
 def post_dm(cid: str, body: schemas.MessageIn,
             user: models.Member = Depends(get_current_user),
             db: Session = Depends(get_db)):
-    m = models.Message(id=next_id(db, models.Message, "m"), thread_id=cid,
+    m = models.Message(id=next_id(db, models.Message, "m"), kind="dm", thread_id=cid,
                        sender=user.id, text=body.text)
     db.add(m); db.commit(); db.refresh(m)
     return {"data": _out(m)}
