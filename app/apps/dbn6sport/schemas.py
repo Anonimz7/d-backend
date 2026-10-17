@@ -1,7 +1,7 @@
 """Pydantic schemas untuk dbn6sport. Field sama dengan frontend (tanpa translasi)."""
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type, datetime
 from typing import Any, Optional
 
 from pydantic import BaseModel
@@ -47,17 +47,17 @@ class ProgramPatch(BaseModel):
 
 # ---------- clients ----------
 class ClientIn(BaseModel):
-    name: str; program_id: str; start: date
+    name: str; program_id: str; start: date_type
     coach_id: str
     cond: Optional[str] = "Prima"; renew: bool = False
     hrmax: Optional[int] = None; mp: Optional[int] = None
     note: Optional[str] = ""; grp: Optional[str] = None
-    end: Optional[date] = None
+    end: Optional[date_type] = None
 
 
 class ClientPatch(BaseModel):
     name: Optional[str] = None; program_id: Optional[str] = None
-    start: Optional[date] = None; end: Optional[date] = None
+    start: Optional[date_type] = None; end: Optional[date_type] = None
     coach_id: Optional[str] = None; cond: Optional[str] = None
     renew: Optional[bool] = None; hrmax: Optional[int] = None
     mp: Optional[int] = None; note: Optional[str] = None
@@ -66,7 +66,7 @@ class ClientPatch(BaseModel):
 
 # ---------- reports ----------
 class ReportIn(BaseModel):
-    date: date; type: Optional[str] = None
+    date: date_type; type: Optional[str] = None
     plan_km: Optional[float] = None; km: Optional[float] = None
     pace: Optional[int] = None; hr: Optional[int] = None
     rasa: Optional[int] = None; note: Optional[str] = ""
@@ -92,7 +92,7 @@ class BookingIn(BaseModel):
 
 # ---------- requests ----------
 class RequestIn(BaseModel):
-    type: str; date: Optional[date] = None; date2: Optional[date] = None
+    type: str; date: Optional[date_type] = None; date2: Optional[date_type] = None
     detail: Optional[str] = ""
 
 
@@ -102,7 +102,7 @@ class RequestPatch(BaseModel):
 
 # ---------- transactions ----------
 class TransactionIn(BaseModel):
-    date: date; type: str; category: str; amount: int
+    date: date_type; type: str; category: str; amount: int
     desc: Optional[str] = ""; program_id: Optional[str] = None
     coach_id: Optional[str] = None
 
