@@ -49,7 +49,7 @@ def create_template(body: dict,
     db.add(t); db.commit(); db.refresh(t)
     return {"data": {"id": t.id, "title": t.title, "text": t.text}}
 
-@router.put("/correction-templates/{tid}")
+@router.patch("/correction-templates/{tid}")
 def update_template(tid: str, body: dict,
                     user: models.Member = Depends(get_current_user),
                     db: Session = Depends(get_db)):
