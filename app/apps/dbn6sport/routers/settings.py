@@ -1,5 +1,5 @@
-"""GET/PATCH /settings, GET /correction-templates"""
-from fastapi import APIRouter, Depends
+"""GET/PATCH /settings, GET/POST/PUT/DELETE /correction-templates"""
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -48,3 +48,27 @@ def create_template(body: dict,
                                   text=body.get("text",""))
     db.add(t); db.commit(); db.refresh(t)
     return {"data": {"id": t.id, "title": t.title, "text": t.text}}
+
+@router.put("/correction-templates/{tid}")
+def update_template(tid: str, body: dict,
+                    user: models.Member = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    t = db.query(models.CorrectionTemplate).filter_by(id=tid).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="Template tidak ditemukan")
+    if "title" in body:
+        t.title = body["title"]
+    if "text" in body:
+        t.text = body["text"]
+    db.commit(); db.refresh(t)
+    return {"data": {"id": t.id, "title": t.title, "text": t.text}}
+
+@router.delete("/correction-templates/{tid}", status_code=204)
+def delete_template(tid: str,
+                    user: models.Member = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    # Idempotent: tetap 204 walau id tidak ada (sinkronisasi hapus lokal)
+    t = db.query(models.CorrectionTemplate).filter_by(id=tid).first()
+    if t:
+        db.delete(t); db.commit()
+    return None
