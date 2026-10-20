@@ -60,10 +60,28 @@ def delete_member(mid: str,
         raise HTTPException(status_code=400, detail="Tidak bisa hapus akun sendiri")
     if m.role == "owner":
         raise HTTPException(status_code=400, detail="Tidak bisa hapus owner")
-    # Cek relasi: jangan hapus jika masih jadi coach klien aktif
-    n_client = db.query(models.Client).filter_by(coach_id=mid).count()
-    if n_client:
-        raise HTTPException(status_code=400, detail=f"Masih menjadi coach {n_client} klien. Pindahkan dulu.")
+    # Cek relasi historis: jangan hapus bila masih terkait data riwayat.
+    # (Dulu hanya klien yang dicek -> relasi lain lolos dan DB menolak = HTTP 500.)
+    blockers = []
+    for label, model, field in (
+        ("klien", models.Client, "coach_id"),
+        ("booking", models.Booking, "coach_id"),
+        ("absensi", models.Attendance, "coach_id"),
+        ("pembayaran komisi", models.CommissionPayment, "coach_id"),
+        ("transaksi", models.Transaction, "coach_id"),
+        ("koreksi laporan", models.Report, "correction_by"),
+    ):
+        n = db.query(model).filter_by(**{field: mid}).count()
+        if n:
+            blockers.append(f"{n} {label}")
+    if blockers:
+        raise HTTPException(
+            status_code=400,
+            detail="Tidak bisa dihapus, masih terkait: " + ", ".join(blockers)
+                   + ". Pindahkan atau hapus data terkait dulu.")
+    # Data setup milik anggota sendiri ikut terhapus: pola jadwal + profil coach.
+    db.query(models.SchedulePattern).filter_by(coach_id=mid).delete()
+    db.query(models.CoachProfile).filter_by(coach_id=mid).delete()
     db.delete(m)
     db.commit()
     return None

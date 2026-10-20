@@ -52,8 +52,15 @@ def delete_program(pid: str, user: models.Member = Depends(get_current_user),
     if not p:
         raise HTTPException(status_code=404, detail="Program tidak ada")
     n = db.query(models.Client).filter_by(program_id=pid).count()
-    if n:
-        raise HTTPException(status_code=400, detail=f"Masih dipakai {n} klien.")
+    t = db.query(models.Transaction).filter_by(program_id=pid).count()
+    if n or t:
+        parts = []
+        if n:
+            parts.append(f"{n} klien")
+        if t:
+            parts.append(f"{t} transaksi")
+        raise HTTPException(status_code=400,
+                            detail="Masih dipakai " + " dan ".join(parts) + ".")
     db.delete(p)
     db.commit()
     return None
