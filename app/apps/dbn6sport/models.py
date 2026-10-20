@@ -227,6 +227,9 @@ class CommissionPayment(Base):
 
     id = Column(String(32), primary_key=True)
     coach_id = Column(String(16), ForeignKey(f"{SCHEMA}.members.id"), index=True)
+    # F1 komisi per klien: pembayaran dicatat per klien. NULL = record legacy
+    # era per-coach (tidak menandai klien mana pun; dimigrasikan di Fase 2).
+    client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id"), nullable=True, index=True)
     period = Column(String(32))  # label periode, misal "7 hari"
     amount = Column(Integer, default=0)
     date = Column(String(10))

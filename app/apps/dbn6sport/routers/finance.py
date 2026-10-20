@@ -86,7 +86,8 @@ def commissions(coach_id: Optional[str] = None,
 def list_commission_payments(user: models.Member = Depends(get_current_user),
                              db: Session = Depends(get_db)):
     rows = db.query(models.CommissionPayment).all()
-    return {"data": [{"id": r.id, "coach_id": r.coach_id, "period": r.period,
+    return {"data": [{"id": r.id, "coach_id": r.coach_id,
+                      "client_id": r.client_id, "period": r.period,
                       "amount": r.amount, "date": r.date, "method": r.method,
                       "note": r.note} for r in rows]}
 
@@ -98,11 +99,13 @@ def create_commission_payment(body: dict,
     from ..ids import next_id
     pid = next_id(db, models.CommissionPayment, "cp")
     r = models.CommissionPayment(
-        id=pid, coach_id=body.get("coach_id"), period=body.get("period"),
+        id=pid, coach_id=body.get("coach_id"),
+        client_id=body.get("client_id"), period=body.get("period"),
         amount=body.get("amount", 0), date=body.get("date"),
         method=body.get("method"), note=body.get("note", ""))
     db.add(r); db.commit(); db.refresh(r)
-    return {"data": {"id": r.id, "coach_id": r.coach_id, "period": r.period,
+    return {"data": {"id": r.id, "coach_id": r.coach_id,
+                     "client_id": r.client_id, "period": r.period,
                      "amount": r.amount, "date": r.date, "method": r.method}}
 
 
