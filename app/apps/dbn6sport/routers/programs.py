@@ -46,14 +46,15 @@ def patch_program(pid: str, body: schemas.ProgramPatch,
 
 
 @router.delete("/programs/{pid}", status_code=204)
-def delete_program(pid: str, user: models.Member = Depends(get_current_user),
+def delete_program(pid: str, force: bool = False,
+                   user: models.Member = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     p = db.query(models.Program).filter_by(id=pid).first()
     if not p:
         raise HTTPException(status_code=404, detail="Program tidak ada")
     n = db.query(models.Client).filter_by(program_id=pid).count()
     t = db.query(models.Transaction).filter_by(program_id=pid).count()
-    if n or t:
+    if (n or t) and not force:
         parts = []
         if n:
             parts.append(f"{n} klien")
@@ -61,6 +62,13 @@ def delete_program(pid: str, user: models.Member = Depends(get_current_user),
             parts.append(f"{t} transaksi")
         raise HTTPException(status_code=400,
                             detail="Masih dipakai " + " dan ".join(parts) + ".")
+    if force:
+        # Hapus paksa: keterkaitan DILEPAS, datanya sendiri tidak ikut terhapus.
+        # Transaksi tetap tersimpan (program_id jadi NULL); klien menjadi tanpa program.
+        db.query(models.Transaction).filter_by(program_id=pid).update(
+            {models.Transaction.program_id: None}, synchronize_session=False)
+        db.query(models.Client).filter_by(program_id=pid).update(
+            {models.Client.program_id: None}, synchronize_session=False)
     db.delete(p)
     db.commit()
     return None
