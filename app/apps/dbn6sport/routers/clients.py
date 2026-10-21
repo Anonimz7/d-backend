@@ -97,6 +97,14 @@ def delete_client(cid: str, user: models.Member = Depends(get_current_user),
     c = db.query(models.Client).filter_by(id=cid).first()
     if not c:
         raise HTTPException(status_code=404, detail="Klien tidak ada")
+    # Relasi tanpa ON DELETE CASCADE dibersihkan/dilepas lebih dulu — tanpa ini
+    # FK violation -> 500 (kejadian produksi 2026-10-21 pada klien berelasi).
+    # Titip & makeup adalah artefak penjadwalan klien: ikut terhapus.
+    # Pembayaran komisi adalah riwayat uang: selamat, client_id dilepas (NULL).
+    db.query(models.Titip).filter_by(client_id=cid).delete()
+    db.query(models.Makeup).filter_by(client_id=cid).delete()
+    db.query(models.CommissionPayment).filter_by(client_id=cid).update(
+        {models.CommissionPayment.client_id: None})
     db.delete(c)
     db.commit()
     return None
