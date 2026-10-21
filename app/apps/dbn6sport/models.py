@@ -58,6 +58,7 @@ class Client(Base):
     program_id = Column(String(16), ForeignKey(f"{SCHEMA}.programs.id"))
     start = Column(Date, nullable=False)
     end = Column(Date, nullable=True)
+    end_orig = Column(Date, nullable=True)  # tanggal selesai sebelum pengunduran (izin coach)
     coach_id = Column(String(16), ForeignKey(f"{SCHEMA}.members.id"), index=True)
     cond = Column(String(64))
     renew = Column(Boolean, default=False)
@@ -119,6 +120,23 @@ class Request(Base):
     date2 = Column(Date, nullable=True)
     detail = Column(Text)
     status = Column(String(16), default="Menunggu", index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Titip(Base):
+    """Komisi Bulanan Fase C: klien dititipkan ke coach pengganti pada tanggal
+    tertentu (akibat izin/cuti coach pemilik klien). Perolehan sesi titipan
+    menjadi milik coach pengganti (to_coach)."""
+    __tablename__ = "titip"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(String(16), primary_key=True)  # tp1
+    client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id"), index=True)
+    date = Column(Date, nullable=False, index=True)
+    from_coach = Column(String(16), nullable=False)
+    to_coach = Column(String(16), nullable=False, index=True)
+    time = Column(String(5), nullable=False)
+    request_id = Column(String(16), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 

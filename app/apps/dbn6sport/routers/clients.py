@@ -18,6 +18,7 @@ def _out(c):
     return {"id": c.id, "uid": c.uid, "name": c.name, "program_id": c.program_id,
             "start": c.start.isoformat() if c.start else None,
             "end": c.end.isoformat() if c.end else "",
+            "end_orig": c.end_orig.isoformat() if c.end_orig else "",
             "coach_id": c.coach_id, "cond": c.cond, "renew": c.renew,
             "hrmax": c.hrmax, "mp": c.mp,
             "arch": c.arch.isoformat() if c.arch else None,

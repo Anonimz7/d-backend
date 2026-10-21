@@ -52,12 +52,13 @@ class ClientIn(BaseModel):
     cond: Optional[str] = "Prima"; renew: bool = False
     hrmax: Optional[int] = None; mp: Optional[int] = None
     note: Optional[str] = ""; grp: Optional[str] = None
-    end: Optional[date_type] = None
+    end: Optional[date_type] = None; end_orig: Optional[date_type] = None
 
 
 class ClientPatch(BaseModel):
     name: Optional[str] = None; program_id: Optional[str] = None
     start: Optional[date_type] = None; end: Optional[date_type] = None
+    end_orig: Optional[date_type] = None
     coach_id: Optional[str] = None; cond: Optional[str] = None
     renew: Optional[bool] = None; hrmax: Optional[int] = None
     mp: Optional[int] = None; note: Optional[str] = None
@@ -100,6 +101,11 @@ class RequestPatch(BaseModel):
     status: Optional[str] = None
 
 
+class TitipIn(BaseModel):
+    client_id: str; date: date_type; from_coach: str; to_coach: str
+    time: str; request_id: Optional[str] = None
+
+
 # ---------- transactions ----------
 class TransactionIn(BaseModel):
     date: date_type; type: str; category: str; amount: int
@@ -120,6 +126,7 @@ class BroadcastIn(BaseModel):
 class SettingsPatch(BaseModel):
     targets: Optional[dict] = None; acl: Optional[dict] = None
     program_tpls: Optional[list] = None
+    komisi: Optional[dict] = None  # Komisi Bulanan Fase B: {tgl_bayar: 'akhir'|1..28}
 
 
 # ---------- activity ----------
