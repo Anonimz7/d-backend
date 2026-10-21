@@ -140,6 +140,23 @@ class Titip(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
+class Makeup(Base):
+    """Sesi pengganti (2026-10-21): sesi pengganti hasil pengunduran izin coach,
+    ditempatkan pada tanggal + jam pilihan (boleh di luar pola mingguan klien).
+    Dilatih coach yang sama; kemunculannya di Daftar Hadir & Komisi mengikuti
+    catatan ini, menggantikan sesi pola yang hilang."""
+    __tablename__ = "makeup"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(String(16), primary_key=True)  # mk1
+    client_id = Column(String(16), ForeignKey(f"{SCHEMA}.clients.id"), index=True)
+    coach_id = Column(String(16), nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    time = Column(String(5), nullable=False)
+    request_id = Column(String(16), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class Message(Base):
     __tablename__ = "messages"
     __table_args__ = {"schema": SCHEMA}

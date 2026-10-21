@@ -5,7 +5,7 @@ from fastapi import APIRouter
 
 from .routers import (
     activity, auth, attendance, clients, corrections, dashboard, finance,
-    members, messages, portal, programs, requests, schedule, settings, titip,
+    makeup, members, messages, portal, programs, requests, schedule, settings, titip,
 )
 
 router = APIRouter()
@@ -24,3 +24,4 @@ router.include_router(activity.router)
 router.include_router(portal.router)
 router.include_router(attendance.router)
 router.include_router(titip.router)
+router.include_router(makeup.router)

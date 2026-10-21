@@ -106,6 +106,11 @@ class TitipIn(BaseModel):
     time: str; request_id: Optional[str] = None
 
 
+class MakeupIn(BaseModel):
+    client_id: str; coach_id: str; date: date_type; time: str
+    request_id: Optional[str] = None
+
+
 # ---------- transactions ----------
 class TransactionIn(BaseModel):
     date: date_type; type: str; category: str; amount: int
