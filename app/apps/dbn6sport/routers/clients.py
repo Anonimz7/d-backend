@@ -14,8 +14,14 @@ from ..ids import next_id
 router = APIRouter()
 
 
+def _new_portal_token():
+    import secrets
+    return secrets.token_urlsafe(32)
+
+
 def _out(c):
-    return {"id": c.id, "uid": c.uid, "name": c.name, "program_id": c.program_id,
+    return {"id": c.id, "uid": c.uid, "portal_token": c.portal_token,
+            "name": c.name, "program_id": c.program_id,
             "start": c.start.isoformat() if c.start else None,
             "end": c.end.isoformat() if c.end else "",
             "end_orig": c.end_orig.isoformat() if c.end_orig else "",
@@ -63,6 +69,7 @@ def create_client(body: schemas.ClientIn,
             maxn = max(maxn, int(m.group(1)))
     uid = f"N6-{maxn + 1}"
     c = models.Client(id=next_id(db, models.Client, "cl"), uid=uid,
+                      portal_token=_new_portal_token(),
                       share_url=f"https://numbersix.example/sw/{uid}",
                       **body.model_dump())
     db.add(c); db.commit(); db.refresh(c)
@@ -76,6 +83,19 @@ def get_client(cid: str, user: models.Member = Depends(get_current_user),
     if not c:
         raise HTTPException(status_code=404, detail="Klien tidak ada")
     return {"data": _out(c)}
+
+
+@router.post("/clients/{cid}/portal-token")
+def regenerate_portal_token(cid: str,
+                            user: models.Member = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Generate ulang token link portal publik klien (link lama langsung mati)."""
+    c = db.query(models.Client).filter_by(id=cid).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Klien tidak ada")
+    c.portal_token = _new_portal_token()
+    db.commit()
+    return {"data": {"portal_token": c.portal_token}}
 
 
 @router.patch("/clients/{cid}")

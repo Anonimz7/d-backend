@@ -54,6 +54,9 @@ class Client(Base):
 
     id = Column(String(16), primary_key=True)  # cl1
     uid = Column(String(16), unique=True, nullable=False, index=True)  # N6-1001
+    # Token acak untuk link portal publik klien (#c=<token>). uid bersifat
+    # urut & mudah ditebak, jadi TIDAK boleh dipakai sebagai kredensial publik.
+    portal_token = Column(String(64), unique=True, nullable=True, index=True)
     name = Column(String(160), nullable=False, index=True)
     program_id = Column(String(16), ForeignKey(f"{SCHEMA}.programs.id"))
     start = Column(Date, nullable=False)
